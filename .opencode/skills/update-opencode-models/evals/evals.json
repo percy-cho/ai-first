@@ -1,0 +1,68 @@
+{
+  "skill_name": "update-opencode-models",
+  "evals": [
+    {
+      "id": 1,
+      "name": "basic-model-optimization",
+      "prompt": "我的 opencode 模型配置需要优化，帮我更新一下模型配置。配置文件路径是 /home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-1.json",
+      "expected_output": "技能应读取配置文件，获取可用模型列表，根据官方规则为每个 agent 和 category 分配合适的模型，并展示变更摘要供用户确认",
+      "files": ["/home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-1.json"],
+      "assertions": [
+        {
+          "name": "正确获取可用模型列表",
+          "description": "技能应执行 `opencode models` 和 `opencode auth list` 获取可用模型"
+        },
+        {
+          "name": "获取官方匹配规则",
+          "description": "技能应成功抓取官方文档作为分配依据"
+        },
+        {
+          "name": "排除不可用模型",
+          "description": "应正确排除 claude-*、deepseek-*、qwen* 系列模型"
+        },
+        {
+          "name": "正确分配 deep category",
+          "description": "deep category 不应分配 codex 系列模型"
+        },
+        {
+          "name": "展示变更摘要",
+          "description": "应以表格形式展示每个 agent/category 的模型变更"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fallback-chain-handling",
+      "prompt": "我的 deep category 当前用的是 gpt-5.4-mini，但感觉太慢了，帮我换成更快的模型。配置在 /home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-2.json",
+      "expected_output": "技能应识别 deep category 的需求，在 fallback chain 中选择非 codex 系列的更优模型",
+      "files": ["/home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-2.json"],
+      "assertions": [
+        {
+          "name": "尊重特殊约束",
+          "description": "deep category 仍不能分配 codex 系列模型"
+        },
+        {
+          "name": "提供速度优化的选择",
+          "description": "应在可用候选池中选择更快且合适的模型"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "unknown-agent-handling",
+      "prompt": "我的配置里有一些自定义 agent，看看模型分配是否合理。配置在 /home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-3.json",
+      "expected_output": "对于官方 guide 中没有的自定义 agent，应标记为无法自动匹配并提示用户手动指定",
+      "files": ["/home/percy/project/ai/ai-first/tmp/skill-eval-umom/test-config-3.json"],
+      "assertions": [
+        {
+          "name": "识别未知 agent",
+          "description": "应正确识别配置中存在但官方 guide 中没有的 agent"
+        },
+        {
+          "name": "提示手动指定",
+          "description": "对于无法匹配的 agent 应向用户提示需要手动指定"
+        }
+      ]
+    }
+  ]
+}
